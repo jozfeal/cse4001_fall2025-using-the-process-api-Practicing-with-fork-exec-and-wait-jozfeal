@@ -14,10 +14,13 @@ main(int argc, char *argv[])
         fprintf(stderr, "fork failed\n");
         exit(1);
     } else if (rc == 0) {
-        printf("Child value of x: %d\n", x);
+        // first print var to check if it has changed from initialization
+	printf("Child value of x: %d\n", x);
+	// change value and check again
 	x = 150;
 	printf("Child value of x after change: %d\n", x);
     } else {
+	// same check as child with different value
         printf("Parent value of x: %d\n", x);
 	x = 50;
 	printf("Parent value of x after change: %d\n", x);
