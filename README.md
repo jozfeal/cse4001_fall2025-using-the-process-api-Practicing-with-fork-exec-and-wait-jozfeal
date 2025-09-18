@@ -52,7 +52,44 @@ Use the Linux in your CSE4001 container. If you are using macOS, you may use the
 
 
 ```cpp
-// Add your code or answer here. You can also add screenshots showing your program's execution.  
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int
+main(int argc, char *argv[])
+{
+    // variable to check for change
+    int x = 100;
+
+    int rc = fork();
+    if (rc < 0) {
+        // fork failed; exit
+        fprintf(stderr, "fork failed\n");
+        exit(1);
+    } else if (rc == 0) {
+        // first print var to check if it has changed from initialization
+        printf("Child value of x: %d\n", x);
+        // change value and check again
+        x = 150;
+        printf("Child value of x after change: %d\n", x);
+    } else {
+        // same check as child with different value
+        printf("Parent value of x: %d\n", x);
+        x = 50;
+        printf("Parent value of x after change: %d\n", x);
+    }
+    return 0;
+}
+```
+
+```
+On execution, the value of "x" on the child and parent were 100, just like in the intialization,
+which means tha the value was copied onto the child, since it is an almost identical copy.
+After changing the value of the variable, the following print would correctly display the new value.
+No matter if the parent or child process ran first, the value of the other process was not affected
+since all the variables are stored in different places, even if the value is the same,
+so the value was 100 for the other process. Once again, the value would change after updating it.
 ```
 
 
