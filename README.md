@@ -162,14 +162,50 @@ main(int argc, char *argv[])
 ```
 
 ```
-By havng the parent sleep, it will wait for the child process to print before printing its own thing,
-thus ensuring that its print goes afterwards.
+By havng the parent sleep, it will wait for the child process to print before printing
+its own thing, thus ensuring that its print goes afterwards.
 ```
 
 4. Write a program that calls `fork()` and then calls some form of `exec()` to run the program `/bin/ls`. See if you can try all of the variants of `exec()`, including (on Linux) `execl()`, `execle()`, `execlp()`, `execv()`, `execvp()`, and `execvpe()`. Why do you think there are so many variants of the same basic call?
 
 ```cpp
-// Add your code or answer here. You can also add screenshots showing your program's execution.  
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+
+int
+main(int argc, char *argv[])
+{
+    int rc = fork();
+    if (rc < 0) {
+        // fork failed; exit
+        fprintf(stderr, "fork failed\n");
+        exit(1);
+    } else if (rc == 0) {
+        //exec("/bin/ls");
+        execl("/bin/ls", "ls", (char *)NULL);
+
+        //execle("/bin/ls","ls", (char *)NULL);
+        //execlp("/bin/ls", (char *)NULL);
+        //execv("/bin/ls", (char *)NULL);
+        //execvp("/bin/ls", (char *)NULL);
+        //execvpe("/bin/ls", (char *)NULL);
+    } else {
+        int rc_wait = wait(NULL);
+    }
+    return 0;
+} 
+```
+
+```
+I was only able to get the program to run using the execl() command, since
+I could not figure out the proper syntax / arguments for the other commands.
+However, I realized the other exec() commands exist to provide different ways
+of finding the programs and arguments to be passed, along with some options
+for what environment to run the methods in. 
 ```
 
 5. Now write a program that uses `wait()` to wait for the child process to finish in the parent. What does `wait()` return? What happens if you use `wait()` in the child?
