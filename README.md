@@ -96,7 +96,42 @@ so the value was 100 for the other process. Once again, the value would change a
 2. Write a program that opens a file (with the `open()` system call) and then calls `fork()` to create a new process. Can both the child and parent access the file descriptor returned by `open()`? What happens when they are writing to the file concurrently, i.e., at the same time?
 
 ```cpp
-// Add your code or answer here. You can also add screenshots showing your program's execution.  
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+
+int
+main(int argc, char *argv[])
+{
+    // close standard output before opening file
+    close(STDOUT_FILENO);
+    // creating new file for fork
+    open("q2.out", O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU);
+    
+    int rc = fork();
+    if (rc < 0) {
+        // fork failed; exit
+        fprintf(stderr, "fork failed\n");
+        exit(1);
+    } else if (rc == 0) {
+	       // child print statement going into q2.out
+        fprintf(stdout, "Child printing\n");
+    } else {
+	       // parent print statement going into q2.out
+        fprintf(stdout, "Parent printing\n");
+    }
+    return 0;
+}  
+```
+
+```
+After opening the file before the fork, both the child and parent process were able to write to it
+using the standard output. It seems like by having no waiting method for the parent, one of the two
+processes would write its entire output first, then the other process would write afterwards, so the
+two outputs would not end up mixed together.
 ```
 
 3. Write another program using `fork()`.The child process should print “hello”; the parent process should print “goodbye”. You should try to ensure that the child process always prints first; can you do this without calling `wait()` in the parent?
