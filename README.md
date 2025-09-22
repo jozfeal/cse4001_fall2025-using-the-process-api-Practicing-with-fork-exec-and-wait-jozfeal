@@ -254,7 +254,43 @@ processes to always run after their parent if desired.
 6. Write a slight modification of the previous program, this time using `waitpid()` instead of `wait()`. When would `waitpid()` be useful?
 
 ```cpp
-// Add your code or answer here. You can also add screenshots showing your program's execution.  
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+
+int
+main(int argc, char *argv[])
+{
+    int rc = fork();
+    if (rc < 0) {
+        // fork failed; exit
+        fprintf(stderr, "fork failed\n");
+        exit(1);
+    } else if (rc == 0) {
+        fprintf(stderr, "Child running first\n");
+    } else {
+	    // store the return value of waitpid
+	    // this time we are specifying the process to wait for
+	    int rc_wait = waitpid(rc, NULL, 0);
+	    fprintf(stderr, "Parent running after wait\n");
+	    // print result of wait to find out
+	    fprintf(stderr, "%d\n", rc_wait);
+    }
+    return 0;
+}
+```
+
+```
+By using waitpid() and passing the id of the child process (stored in rc from fork()),
+we can specify the process that we want to wait for before continuing the parent process.
+waitpid() is useful for when you have multiple child processes running, some of which can run
+independently without the parent caring, and one or more who the parents needs to wait for.
+By specifying which process to wait for, we can be more precise in our use of wait() and
+ensure that the correct process is done before continuing with the parent code, avoiding
+errors and uncertainty.
 ```
 
 7. Write a program that creates a child process, and then in the child closes standard output (`STDOUT FILENO`). What happens if the child calls `printf()` to print some output after closing the descriptor?
