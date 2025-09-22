@@ -211,7 +211,44 @@ for what environment to run the methods in.
 5. Now write a program that uses `wait()` to wait for the child process to finish in the parent. What does `wait()` return? What happens if you use `wait()` in the child?
 
 ```cpp
-// Add your code or answer here. You can also add screenshots showing your program's execution.  
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+
+int
+main(int argc, char *argv[])
+{
+    int rc = fork();
+    if (rc < 0) {
+        // fork failed; exit
+        fprintf(stderr, "fork failed\n");
+        exit(1);
+    } else if (rc == 0) {
+        fprintf(stderr, "Child running first\n");
+	    // child using wait just to test, commented out
+	    //int rc_wait = wait(NULL);
+    } else {
+	    // store the return value of wait
+	    int rc_wait = wait(NULL);
+	    fprintf(stderr, "Parent running after wait\n");
+	    // print result of wait to find out
+	    fprintf(stderr, "%d\n", rc_wait);
+    }
+    return 0;
+}
+```
+
+```
+By printing it we can see that the value returned by wait() is an integer number.
+After running the program multiple times, I could tell it was returning the number
+of the process that it had waited for, since it was going up by two on each execution,
+one for the parent and one for the child. After using wait on the child instead,
+the child would run after its parent always, which means that the wait() method
+simply waits for a process to end, without specifying which, and allows children
+processes to always run after their parent if desired.
 ```
 
 6. Write a slight modification of the previous program, this time using `waitpid()` instead of `wait()`. When would `waitpid()` be useful?
