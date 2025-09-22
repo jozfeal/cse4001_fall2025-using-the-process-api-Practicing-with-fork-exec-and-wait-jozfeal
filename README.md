@@ -162,7 +162,7 @@ main(int argc, char *argv[])
 ```
 
 ```
-By havng the parent sleep, it will wait for the child process to print before printing
+By having the parent sleep, it will wait for the child process to print before printing
 its own thing, thus ensuring that its print goes afterwards.
 ```
 
@@ -296,6 +296,39 @@ errors and uncertainty.
 7. Write a program that creates a child process, and then in the child closes standard output (`STDOUT FILENO`). What happens if the child calls `printf()` to print some output after closing the descriptor?
 
 ```cpp
-// Add your code or answer here. You can also add screenshots showing your program's execution.  
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+
+int
+main(int argc, char *argv[])
+{
+    int rc = fork();
+    if (rc < 0) {
+        // fork failed; exit
+        fprintf(stderr, "fork failed\n");
+        exit(1);
+    } else if (rc == 0) {
+	    // closing the standard output before printing to see result
+	    close(STDOUT_FILENO);
+        fprintf(stdout, "Child printing\n");
+    } else {
+	    // waiting on child for result to be reflected in parent print too
+	    int rc = wait(NULL);
+        fprintf(stdout, "Parent printing\n");
+    }
+    return 0;
+} 
 ```
 
+```
+After closing the standard output, the child process's print would not be displayed on the
+screen, meaning that it was not able to print since it had nowhere to output to. However,
+the parent's output was completely unaffected was able to be seen on the display. This means
+that the closing of standard output only affected the child process since it was closed
+inside the child process and not before the fork, confirming that the closing and opening
+of output only affects the currently running process that executes the method.
+```
